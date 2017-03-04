@@ -1,0 +1,222 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+    <style> 
+
+        body { 
+            margin: 0; 
+        } 
+
+        canvas { 
+            border: solid 1px black;
+            position: relative;
+            background: green;
+        }
+
+        #holder {
+            display: block;
+            margin: 20px auto 0 auto;
+            width: 800px;
+            height: 600px;
+        }
+
+    </style>
+
+    <script>
+    
+        function init() {
+            var canvas = document.getElementById("canvas");
+            canvas.width = 800;
+            canvas.height = 600;
+            var c = canvas.getContext("2d");
+            var WIDTH = canvas.width;
+            var HEIGHT = canvas.height;
+
+            var keys = [];
+
+            canvas.addEventListener("keydown", function (e) {
+                keys[e.keyCode] = true;
+            });
+
+            canvas.addEventListener("keyup", function (e) {
+                keys[e.keyCode] = false;
+            });
+
+            function Player() {
+                this.x = 385;
+                this.y = 285;
+                this.w = 20;
+                this.h = 20;
+                this.points = 0;
+            } 
+            
+            function playerDraw() {
+                c.fillStyle = "red";
+                c.strokeStyle = "blue";
+                c.beginPath();
+                c.rect(Player1.x, Player1.y, Player1.w, Player1.h);
+                c.lineWidth = 1;
+                c.stroke();
+                c.fill();
+            }
+
+            var timeRemaining = 30;
+
+            var theCoins = [];
+
+            function createNewCoins() {
+                theCoins.push(
+                {
+                    x: Math.floor(Math.random() * 790),
+                    y: Math.floor(Math.random() * 590),
+                    w: 10,
+                    h: 10, 
+                    points: 10, 
+                    color: 'yellow'
+                });
+                theCoins.push(
+                {
+                    x: Math.floor(Math.random() * 775),
+                    y: Math.floor(Math.random() * 575),
+                    w: 25,
+                    h: 25, 
+                    points: 5, 
+                    color: 'grey'
+                });
+                theCoins.push(
+                {
+                    x: Math.floor(Math.random() * 750),
+                    y: Math.floor(Math.random() * 550),
+                    w: 50,
+                    h: 50, 
+                    points: 2, 
+                    color: 'brown'
+                });
+            } // createNewCoins	
+
+            function drawCoins() {
+                theCoins.forEach(function(i, j) {
+                    c.beginPath();
+                    c.fillStyle = i.color;
+                    c.strokeStyle = i.color;
+                    c.rect(i.x, i.y, i.w, i.h);
+                    c.lineWidth = 1;
+                    c.stroke();
+                    c.fill();
+                });
+            }
+
+            var Player1 = new Player();	
+
+            createNewCoins();
+
+            setInterval(mainDraw, 10);
+
+            function drawHUD() {
+                c.font = '18pt Calibri';
+                c.fillStyle = 'black';
+                c.fillText("Points: ", 10, 25);
+                c.fillText("Time remaining:", 120, 25);
+                if (timeRemaining < 10) {
+                    c.fillStyle = "red";
+                }
+                c.fillText(Math.ceil(timeRemaining), 290, 25);
+                c.fillStyle = 'yellow';
+                c.fillText(Player1.points, 85, 25);
+            }	
+
+            function collides(a, b) {
+                return	a.x < b.x + b.w &&
+                a.x + a.w > b.x &&
+                a.y < b.y + b.h &&
+                a.y + a.h > b.y;
+            }
+
+            function checkCollision() {
+                theCoins.forEach(function(i, j) {
+                    if (collides(i, Player1)) {
+                        Player1.points += i.points;
+                        theCoins.splice(0);
+                        createNewCoins();
+                    }
+                });
+             }
+
+            function endStats() {
+                c.font = '80pt Calibri';
+                c.fillStyle = 'black';
+                c.fillText("Your Score: ", 70, 240);
+                c.fillStyle = 'yellow';
+                c.fillText(Player1.points, 580, 240);
+
+                c.font = '30pt Calibri';
+                c.fillStyle = 'black';
+                c.fillText("Press enter to play again!", 180, 400);
+
+                if (keys[13]) {
+                    Player1.points = 0;
+                    Player1.x = 385;
+                    Player1.y = 285;
+                    Player1.w = 20;
+                    Player1.h = 20;
+                    theCoins.splice(0);
+                    createNewCoins();
+                    timeRemaining = 30;
+                }
+            } 
+            
+            function mainDraw() {
+                c.clearRect(0, 0, WIDTH, HEIGHT);
+
+                if (timeRemaining > 0) {
+                    playerMove();	
+                    playerDraw();
+                    drawCoins();
+                    drawHUD();
+                    checkCollision();
+                    timeRemaining -= 0.01;	
+                } 
+                else {
+                    endStats();
+                }
+
+            } // mainDraw
+
+            function playerMove(e) {
+                if (keys[87]) {
+                    if (Player1.y > 2) {
+                        Player1.y -= 2;
+                    }
+                }
+                if (keys[83]) {
+                    if (Player1.y < HEIGHT - Player1.h - 2) {
+                        Player1.y += 2;
+                    }
+                }
+                if (keys[65]) {
+                    if (Player1.x > 2) {
+                        Player1.x -= 2;
+                    }
+                }
+                if (keys[68]) {
+                    if (Player1.x < WIDTH - Player1.w - 2) {
+                        Player1.x += 2;
+                    }
+                }
+                return false;
+            }
+            
+        } // init
+
+    </script>
+
+    </head>
+
+    <body onload="init()">
+        <div id="holder">
+            <canvas id="canvas" width="800" height="600" tabindex='1'></canvas>
+        </div>
+
+
+    </body>
+</html>
